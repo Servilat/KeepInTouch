@@ -17,6 +17,7 @@
         android:hint="@string/mobile_phone"
         android:inputType="phone"
         android:singleLine="true"
+        android:textCursorDrawable="@null"
         android:textColor="@android:color/background_light"
         android:textColorHint="@android:color/background_light"
         android:textColorLink="@android:color/background_light"
@@ -24,14 +25,15 @@
         app:backgroundTint="@android:color/background_light"
         />
 
-    <android.support.v7.widget.AppCompatButton
-        android:id="@+id/login_button"
+    <Button
+        android:id="@+id/login_button_telegram"
         android:layout_width="286dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="85dp"
-        android:text="@string/send_message"
+        android:background="@drawable/oval_button"
+        android:text="@string/login"
         android:textSize="24sp"
-        android:background="@android:color/background_light"/>
+        />
 </RelativeLayout>

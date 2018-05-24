@@ -1,4 +1,4 @@
-package com.servilat.myapplication;
+package com.servilat.keepintouch;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
