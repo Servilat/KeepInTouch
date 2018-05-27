@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/preview_messages_photo"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp" />
+
+    <TextView
+        android:id="@+id/preview_messages_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_toRightOf="@+id/preview_messages_photo"
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:text="@string/password"
+        android:textColor="@android:color/background_dark"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/preview_user_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/preview_messages_name"
+        android:layout_below="@+id/preview_messages_name"
+        android:paddingLeft="10dp"
+        android:text="@string/app_name"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/preview_message_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/preview_messages_name"
+        android:layout_marginEnd="15dp"
+        android:text="20:38"
+        android:layout_marginBottom="5dp"/>
+</RelativeLayout>
