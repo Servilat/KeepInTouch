@@ -51,7 +51,7 @@ public class MessagesListFragmentAdapter extends ArrayAdapter<MessagesItem> {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
 
-        MessagesItem row_pos = messagesItems.get(position);
+        MessagesItem messageItem = messagesItems.get(position);
 
         if (convertView == null) {
             LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
@@ -59,7 +59,7 @@ public class MessagesListFragmentAdapter extends ArrayAdapter<MessagesItem> {
 
             holder = new ViewHolder();
 
-            holder.dialogNameTextView = (TextView) convertView.findViewById(R.id.preview_messages_name);
+            holder.dialogNameTextView = convertView.findViewById(R.id.preview_messages_name);
             holder.messageTextView = convertView.findViewById(R.id.preview_user_message);
             holder.messageTimeTextView = convertView.findViewById(R.id.preview_message_time);
             holder.dialogPhotoImageView = convertView.findViewById(R.id.preview_messages_photo);
@@ -68,11 +68,17 @@ public class MessagesListFragmentAdapter extends ArrayAdapter<MessagesItem> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.messageTimeTextView.setText(row_pos.getTime());
-        holder.messageTextView.setText(row_pos.getUser_message_item());
-        holder.dialogNameTextView.setText(row_pos.getMember_name_list());
-
-        Picasso.with(getContext()).load(row_pos.getImageURL()).placeholder(R.drawable.placeholder_person).into(holder.dialogPhotoImageView);
+        holder.messageTimeTextView.setText(messageItem.getMessageTime());
+        holder.messageTextView.setText(messageItem.getUserMessage());
+        holder.dialogNameTextView.setText(messageItem.getDialogName());
+        if (!messageItem.getReadState()) {
+            holder.messageTextView.setBackgroundColor(getContext().getResources().getColor(R.color.colorGrey));
+        }
+        Picasso.with(getContext())
+                .load(messageItem.getImageURL())
+                .placeholder(R.drawable.placeholder_person)
+                .error(R.drawable.placeholder_person)
+                .into(holder.dialogPhotoImageView);
 
         return convertView;
     }

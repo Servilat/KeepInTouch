@@ -7,10 +7,34 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
+import com.vk.sdk.api.model.VKApiUserFull;
+
+import org.json.JSONException;
 
 import static com.vk.sdk.VKUIHelper.getApplicationContext;
 
 public class Util {
+    public static final String executeCode = "var offset = %d;" +
+            "var dialogs = [];" +
+            "var posts = API.messages.getDialogs({\"count\": 15, \"offset\" : offset});" +
+            "var i = 0;" +
+            "var count = posts.count;"+
+            "while(i<posts.items.length) {" +
+            "if(posts.items[i].message.chat_id!=null) {" +
+            "dialogs.push(posts.items[i].message);" +
+            "} else {" +
+            "var user = API.users.get({\"user_ids\":  posts.items[i].message.user_id, \"fields\": \"photo_100\"});" +
+            "var temp = posts.items[i].message + user[0];" +
+            "dialogs.push(temp);" +
+            "}" +
+            "i = i +1;" +
+            "}" +
+            "return {\"dialogs\": dialogs, \"count\": count};";
+
     public static boolean isConnectedToInternet() {
         ConnectivityManager connectivity = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null) {
@@ -43,4 +67,6 @@ public class Util {
                 })
                 .show();
     }
+
+
 }

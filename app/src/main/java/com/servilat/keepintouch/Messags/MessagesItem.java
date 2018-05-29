@@ -1,54 +1,106 @@
 package com.servilat.keepintouch.Messags;
 
+import com.vk.sdk.api.model.VKApiDialog;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class MessagesItem {
-    private String member_name_list;
-    private String user_message_item;
-    private String time;
+    private String dialogName;
+    private String userMessage;
+    private String messageTime;
     private String imageURL;
-    private int user_id;
+    private String userID;
+    private boolean readState;
 
-    public MessagesItem(String member_name_list, String imageURL, String user_message_item, String time, int user_id) {
-        this.member_name_list = member_name_list;
-        this.user_message_item = user_message_item;
-        this.time = time;
+    public MessagesItem(String dialogName, String imageURL, String userMessage, int messageTime, String user_id, boolean readState) {
+        this.dialogName = dialogName;
+        this.userMessage = userMessage;
+        this.messageTime = convertTime(messageTime);
         this.imageURL = imageURL;
-        this.user_id = user_id;
+        this.userID = user_id;
+        this.readState = readState;
+    }
+
+    public MessagesItem(VKApiDialog dialog) {
+        this.dialogName = dialog.message.title;
+        this.userMessage = dialog.message.body;
+        this.messageTime = convertTime(dialog.message.date);
+        this.userID = String.valueOf(dialog.message.user_id);
+        this.readState = dialog.message.read_state;
+    }
+
+    public MessagesItem(JSONObject message) {
+        parseMessage(message);
     }
 
 
-    public String getMember_name_list() {
-        return member_name_list;
+    public String getDialogName() {
+        return dialogName;
     }
 
-    public void setMember_name_list(String member_name_list) {
-        this.member_name_list = member_name_list;
+    public void setDialogName(String dialogName) {
+        this.dialogName = dialogName;
     }
 
-    public String getUser_message_item() {
-        return user_message_item;
+    public String getUserMessage() {
+        return userMessage;
     }
 
-    public void setUser_message_item(String user_message_item) {
-        this.user_message_item = user_message_item;
+    public void setUserMessage(String userMessage) {
+        this.userMessage = userMessage;
     }
 
-    public String getTime() {
-        return time;
+    public String getMessageTime() {
+        return messageTime;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setMessageTime(String messageTime) {
+        this.messageTime = messageTime;
     }
 
-    public int getUser_id() {
-        return user_id;
-    }
-
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public String getUserID() {
+        return userID;
     }
 
     public String getImageURL() {
         return imageURL;
+    }
+
+    public boolean getReadState() {
+        return readState;
+    }
+
+    String convertTime(long unixTime) {
+        Date date = new Date(unixTime * 1000L);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        return sdf.format(date);
+    }
+
+    void parseMessage(JSONObject message) {
+        try {
+            readState = message.getInt("read_state") != 0;
+
+            this.userMessage = message.getString("body");
+            this.messageTime = convertTime(message.getInt("date"));
+
+            if (message.has("photo_100")) {
+                this.imageURL = message.getString("photo_100");
+            }
+
+            if (message.has("chat_id")) {
+                this.userID = String.valueOf(2000000000 + message.getInt("chat_id"));
+                this.dialogName = message.getString("title");
+            } else {
+                this.userID = message.getString("user_id");
+                this.dialogName = message.getString("first_name") + " " + message.getString("last_name");
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

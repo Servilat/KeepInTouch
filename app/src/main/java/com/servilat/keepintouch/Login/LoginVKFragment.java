@@ -1,4 +1,4 @@
-package com.servilat.keepintouch;
+package com.servilat.keepintouch.Login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,25 +10,30 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.servilat.keepintouch.MainActivity;
 import com.servilat.keepintouch.Messags.MessagesListFragment;
-import com.squareup.picasso.Picasso;
+import com.servilat.keepintouch.R;
+import com.servilat.keepintouch.SocialNetworks;
+import com.servilat.keepintouch.Util;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKCallback;
 import com.vk.sdk.VKScope;
 import com.vk.sdk.VKSdk;
 import com.vk.sdk.VKServiceActivity;
 import com.vk.sdk.api.VKError;
+import com.vk.sdk.api.VKRequest;
+import com.vk.sdk.api.VKResponse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import static com.servilat.keepintouch.MainActivity.SOCIAL_NETWORK;
 import static com.servilat.keepintouch.Util.showAlertMessage;
 
 public class LoginVKFragment extends Fragment implements View.OnClickListener {
-    String[] vkScope = {VKScope.MESSAGES, VKScope.OFFLINE, VKScope.STATUS};
+    private String[] vkScope = {VKScope.MESSAGES, VKScope.OFFLINE, VKScope.STATUS};
 
     @Nullable
     @Override
@@ -64,16 +69,20 @@ public class LoginVKFragment extends Fragment implements View.OnClickListener {
         if (!VKSdk.onActivityResult(requestCode, resultCode, data, new VKCallback<VKAccessToken>() {
             @Override
             public void onResult(VKAccessToken res) {
+                VKRequest vkRequest = new VKRequest("account.getProfileInfo");
+                vkRequest.executeWithListener(new VKRequest.VKRequestListener() {
+                    @Override
+                    public void onComplete(VKResponse response) {
+                        super.onComplete(response);
+                    }
+                });
+                ((MainActivity) getActivity()).setNavigationDrawerHeader(SocialNetworks.VK);
                 showMessagesList();
-                Picasso.with(getContext()).load("https://pp.userapi.com/c831209/v831209900/e436c/4KHp30570DE.jpg").
-                        placeholder(R.drawable.placeholder_person).
-                        into((ImageView) getActivity().findViewById(R.id.nav_user_photo));
             }
 
             @Override
             public void onError(VKError error) {
                 Toast.makeText(getContext(), "Error", Toast.LENGTH_LONG).show();
-
             }
         })) {
             super.onActivityResult(requestCode, resultCode, data);
@@ -83,9 +92,14 @@ public class LoginVKFragment extends Fragment implements View.OnClickListener {
     void showMessagesList() {
         MessagesListFragment messagesListFragment = new MessagesListFragment();
 
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(SOCIAL_NETWORK, SocialNetworks.VK);
+        messagesListFragment.setArguments(bundle);
+
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frame_layout, messagesListFragment);
+        fragmentTransaction.replace(R.id.frame_layout, messagesListFragment, "visible_list");
         fragmentTransaction.addToBackStack(null);
+
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.commit();
     }
