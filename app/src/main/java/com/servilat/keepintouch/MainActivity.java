@@ -17,7 +17,7 @@ import android.widget.TextView;
 import com.servilat.keepintouch.Login.LoginFacebookFragment;
 import com.servilat.keepintouch.Login.LoginTelegramFragment;
 import com.servilat.keepintouch.Login.LoginVKFragment;
-import com.servilat.keepintouch.Messags.MessagesListFragment;
+import com.servilat.keepintouch.Dialog.DialogsListFragment;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKSdk;
@@ -30,8 +30,6 @@ import com.vk.sdk.api.model.VKApiUserFull;
 import com.vk.sdk.api.model.VKList;
 
 import org.json.JSONException;
-
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -120,7 +118,7 @@ public class MainActivity extends AppCompatActivity
                 if (!VKSdk.isLoggedIn()) {
                     visibleFragment = new LoginVKFragment();
                 } else {
-                    MessagesListFragment fragment = (MessagesListFragment) getSupportFragmentManager().findFragmentByTag("visible_list");
+                    DialogsListFragment fragment = (DialogsListFragment) getSupportFragmentManager().findFragmentByTag("visible_list");
 
                     if (fragment != null) {
                         if (fragment.getCurrentSocialNetwork() != SocialNetworks.VK) {
@@ -144,7 +142,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     void showMessagesList(SocialNetworks socialNetwork) {
-        MessagesListFragment messagesListFragment = new MessagesListFragment();
+        DialogsListFragment dialogsListFragment = new DialogsListFragment();
 
         Bundle bundle = new Bundle();
         switch (socialNetwork) {
@@ -158,9 +156,9 @@ public class MainActivity extends AppCompatActivity
                 bundle.putSerializable(SOCIAL_NETWORK, SocialNetworks.VK);
         }
 
-        messagesListFragment.setArguments(bundle);
+        dialogsListFragment.setArguments(bundle);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frame_layout, messagesListFragment, "visible_list");
+        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_list");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.commit();

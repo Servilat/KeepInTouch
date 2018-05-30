@@ -1,4 +1,4 @@
-package com.servilat.keepintouch.Messags;
+package com.servilat.keepintouch.Dialog;
 
 import com.vk.sdk.api.model.VKApiDialog;
 
@@ -8,7 +8,9 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MessagesItem {
+import static com.servilat.keepintouch.Util.convertTime;
+
+public class DialogsItem {
     private String dialogName;
     private String userMessage;
     private String messageTime;
@@ -16,7 +18,7 @@ public class MessagesItem {
     private String userID;
     private boolean readState;
 
-    public MessagesItem(String dialogName, String imageURL, String userMessage, int messageTime, String user_id, boolean readState) {
+    public DialogsItem(String dialogName, String imageURL, String userMessage, int messageTime, String user_id, boolean readState) {
         this.dialogName = dialogName;
         this.userMessage = userMessage;
         this.messageTime = convertTime(messageTime);
@@ -25,7 +27,7 @@ public class MessagesItem {
         this.readState = readState;
     }
 
-    public MessagesItem(VKApiDialog dialog) {
+    public DialogsItem(VKApiDialog dialog) {
         this.dialogName = dialog.message.title;
         this.userMessage = dialog.message.body;
         this.messageTime = convertTime(dialog.message.date);
@@ -33,7 +35,7 @@ public class MessagesItem {
         this.readState = dialog.message.read_state;
     }
 
-    public MessagesItem(JSONObject message) {
+    public DialogsItem(JSONObject message) {
         parseMessage(message);
     }
 
@@ -74,11 +76,7 @@ public class MessagesItem {
         return readState;
     }
 
-    String convertTime(long unixTime) {
-        Date date = new Date(unixTime * 1000L);
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
-        return sdf.format(date);
-    }
+
 
     void parseMessage(JSONObject message) {
         try {

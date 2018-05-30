@@ -7,13 +7,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.v7.app.AlertDialog;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
-import com.vk.sdk.api.model.VKApiUserFull;
-
-import org.json.JSONException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import static com.vk.sdk.VKUIHelper.getApplicationContext;
 
@@ -22,7 +19,7 @@ public class Util {
             "var dialogs = [];" +
             "var posts = API.messages.getDialogs({\"count\": 15, \"offset\" : offset});" +
             "var i = 0;" +
-            "var count = posts.count;"+
+            "var count = posts.count;" +
             "while(i<posts.items.length) {" +
             "if(posts.items[i].message.chat_id!=null) {" +
             "dialogs.push(posts.items[i].message);" +
@@ -68,5 +65,11 @@ public class Util {
                 .show();
     }
 
+    public static String convertTime(long unixTime) {
+        Date date = new Date(unixTime * 1000L);
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm");
+        /*sdf.setTimeZone(TimeZone.getTimeZone("GMT+3"));*/
+        return sdf.format(date);
+    }
 
 }

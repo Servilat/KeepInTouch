@@ -13,7 +13,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.servilat.keepintouch.MainActivity;
-import com.servilat.keepintouch.Messags.MessagesListFragment;
+import com.servilat.keepintouch.Dialog.DialogsListFragment;
 import com.servilat.keepintouch.R;
 import com.servilat.keepintouch.SocialNetworks;
 import com.servilat.keepintouch.Util;
@@ -90,14 +90,14 @@ public class LoginVKFragment extends Fragment implements View.OnClickListener {
     }
 
     void showMessagesList() {
-        MessagesListFragment messagesListFragment = new MessagesListFragment();
+        DialogsListFragment dialogsListFragment = new DialogsListFragment();
 
         Bundle bundle = new Bundle();
         bundle.putSerializable(SOCIAL_NETWORK, SocialNetworks.VK);
-        messagesListFragment.setArguments(bundle);
+        dialogsListFragment.setArguments(bundle);
 
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frame_layout, messagesListFragment, "visible_list");
+        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_list");
         fragmentTransaction.addToBackStack(null);
 
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);

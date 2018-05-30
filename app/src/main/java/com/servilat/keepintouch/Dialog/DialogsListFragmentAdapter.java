@@ -1,4 +1,4 @@
-package com.servilat.keepintouch.Messags;
+package com.servilat.keepintouch.Dialog;
 
 import android.app.Activity;
 import android.content.Context;
@@ -15,14 +15,14 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MessagesListFragmentAdapter extends ArrayAdapter<MessagesItem> {
+public class DialogsListFragmentAdapter extends ArrayAdapter<DialogsItem> {
     Context context;
-    List<MessagesItem> messagesItems;
+    List<DialogsItem> dialogsItems;
 
-    public MessagesListFragmentAdapter(ArrayList<MessagesItem> messagesItems, Context context) {
-        super(context, R.layout.message_item_layout, messagesItems);
+    public DialogsListFragmentAdapter(ArrayList<DialogsItem> dialogsItems, Context context) {
+        super(context, R.layout.message_item_layout, dialogsItems);
         this.context = context;
-        this.messagesItems = messagesItems;
+        this.dialogsItems = dialogsItems;
     }
 
     private class ViewHolder {
@@ -34,24 +34,24 @@ public class MessagesListFragmentAdapter extends ArrayAdapter<MessagesItem> {
 
     @Override
     public int getCount() {
-        return messagesItems.size();
+        return dialogsItems.size();
     }
 
     @Override
-    public MessagesItem getItem(int position) {
-        return messagesItems.get(position);
+    public DialogsItem getItem(int position) {
+        return dialogsItems.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return messagesItems.indexOf(getItem(position));
+        return dialogsItems.indexOf(getItem(position));
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder = null;
 
-        MessagesItem messageItem = messagesItems.get(position);
+        DialogsItem messageItem = dialogsItems.get(position);
 
         if (convertView == null) {
             LayoutInflater mInflater = (LayoutInflater) context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);

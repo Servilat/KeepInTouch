@@ -23,4 +23,6 @@
     <integer name="com_vk_sdk_AppId">6488442</integer>
     <string name="internet_connection_error_message" >Some problems with Internet connection. Check your internet connection and try to log in again.</string>
     <string name="internet_connection_error_title">Internet connection error</string>
+    <string name="send">SEND</string>
+    <string name="enter_message_hint">Enter message</string>
 </resources>

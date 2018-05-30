@@ -1,7 +1,8 @@
-package com.servilat.keepintouch.Messags;
+package com.servilat.keepintouch.Dialog;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -9,12 +10,15 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.servilat.keepintouch.MainActivity;
+import com.servilat.keepintouch.Chat.ChatArrayFragment;
+import com.servilat.keepintouch.Chat.User;
 import com.servilat.keepintouch.R;
 import com.servilat.keepintouch.SocialNetworks;
 import com.servilat.keepintouch.Util;
+import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.api.VKParameters;
 import com.vk.sdk.api.VKRequest;
 import com.vk.sdk.api.VKResponse;
@@ -27,20 +31,26 @@ import java.util.ArrayList;
 
 import static com.servilat.keepintouch.MainActivity.SOCIAL_NETWORK;
 
-public class MessagesListFragment extends ListFragment {
-    ArrayList<MessagesItem> messagesItems;
-    MessagesListFragmentAdapter adapter;
+public class DialogsListFragment extends ListFragment {
+    ArrayList<DialogsItem> dialogsItems;
+    DialogsListFragmentAdapter adapter;
     SocialNetworks currentSocialNetwork;
     ListView listView;
     private int dialogsCount;
     private int dialogOffset = 0;
 
+    /*@Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+
+    }*/
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        messagesItems = new ArrayList<>();
+        dialogsItems = new ArrayList<>();
 
-        adapter = new MessagesListFragmentAdapter(messagesItems, getContext());
+        adapter = new DialogsListFragmentAdapter(dialogsItems, getContext());
         Bundle arguments = getArguments();
         getVKDialogs();
         if (arguments != null) {
@@ -67,8 +77,8 @@ public class MessagesListFragment extends ListFragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-    private ArrayList<MessagesItem> getVKDialogs() {
-        final ArrayList<MessagesItem> messagesItems = new ArrayList<>();
+    private ArrayList<DialogsItem> getVKDialogs() {
+        final ArrayList<DialogsItem> dialogsItems = new ArrayList<>();
         VKRequest request = new VKRequest("execute", VKParameters.from("code", String.format(Util.executeCode, dialogOffset)));
         request.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
@@ -78,7 +88,7 @@ public class MessagesListFragment extends ListFragment {
                 adapter.notifyDataSetChanged();
             }
         });
-        return messagesItems;
+        return dialogsItems;
     }
 
     JSONArray parseVKResponse(JSONObject vkResponse) {
@@ -97,6 +107,8 @@ public class MessagesListFragment extends ListFragment {
         super.onActivityCreated(savedInstanceState);
         listView = getListView();
         listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            private int preLast;
+
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -104,35 +116,66 @@ public class MessagesListFragment extends ListFragment {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (listView.getChildAt(0) != null) {
-                    if (listView.getFirstVisiblePosition() == 0 &&
-                            listView.getChildAt(0).getTop() >= 0) {
-                        if (dialogOffset + 15 < dialogsCount) {
+                final int lastItem = firstVisibleItem + visibleItemCount;
+                if (lastItem == totalItemCount) {
+                    if (preLast != lastItem) {
+                        if (dialogOffset < dialogsCount) {
                             dialogOffset += 15;
                             getVKDialogs();
                         }
-
+                        preLast = lastItem;
                     }
                 }
             }
         });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                showDialog(position);
+            }
+        });
     }
 
-    ArrayList<MessagesItem> parseMessages(JSONArray messages) {
-        ArrayList<MessagesItem> messagesItems = new ArrayList<>();
+    ArrayList<DialogsItem> parseMessages(JSONArray messages) {
+        ArrayList<DialogsItem> dialogsItems = new ArrayList<>();
 
         for (int i = 0; i < messages.length(); i++) {
             try {
-                MessagesItem messagesItem = new MessagesItem(messages.getJSONObject(i));
-                messagesItems.add(messagesItem);
+                DialogsItem dialogsItem = new DialogsItem(messages.getJSONObject(i));
+                dialogsItems.add(dialogsItem);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-        return messagesItems;
+        return dialogsItems;
     }
 
     public SocialNetworks getCurrentSocialNetwork() {
         return currentSocialNetwork;
+    }
+
+    void showDialog(int position) {
+        ChatArrayFragment dialogsListFragment = new ChatArrayFragment();
+
+        DialogsItem dialogsItem = dialogsItems.get(position);
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("CURRENT_USER_ID", new User(
+                "",
+                "",
+                VKAccessToken.currentToken().userId));
+        bundle.putSerializable(ChatArrayFragment.CURRENT_USER_ID_DIALOG_WITH, new User(
+                dialogsItem.getImageURL(),
+                dialogsItem.getDialogName(),
+                dialogsItem.getUserID()));
+
+        dialogsListFragment.setArguments(bundle);
+
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_dialog");
+        fragmentTransaction.addToBackStack(null);
+
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
     }
 }
