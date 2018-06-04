@@ -14,10 +14,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.servilat.keepintouch.Dialog.DialogsListFragment;
 import com.servilat.keepintouch.Login.LoginFacebookFragment;
 import com.servilat.keepintouch.Login.LoginTelegramFragment;
 import com.servilat.keepintouch.Login.LoginVKFragment;
-import com.servilat.keepintouch.Dialog.DialogsListFragment;
 import com.squareup.picasso.Picasso;
 import com.vk.sdk.VKAccessToken;
 import com.vk.sdk.VKSdk;
@@ -30,6 +33,7 @@ import com.vk.sdk.api.model.VKApiUserFull;
 import com.vk.sdk.api.model.VKList;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -45,10 +49,10 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             @Override
@@ -69,14 +73,14 @@ public class MainActivity extends AppCompatActivity
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -84,51 +88,26 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }*/
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
-        if (id == R.id.action_search) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         visibleFragment = null;
-
         switch (id) {
             case R.id.nav_facebook_messenger:
                 colorID = R.color.colorFacebook;
-                visibleFragment = new LoginFacebookFragment();
+                if (!FacebookIsLoggedIn()) {
+                    visibleFragment = new LoginFacebookFragment();
+                } else if (!checkCurrentVisibleFragment(SocialNetworks.FACEBOOK)) {
+                    setMainActivityAppearance(SocialNetworks.FACEBOOK);
+                }
                 break;
             case R.id.nav_vk:
                 colorID = R.color.colorVK;
-                if (!VKSdk.isLoggedIn()) {
+                if (!VKIsLoggedIn()) {
                     visibleFragment = new LoginVKFragment();
-                } else {
-                    DialogsListFragment fragment = (DialogsListFragment) getSupportFragmentManager().findFragmentByTag("visible_list");
-
-                    if (fragment != null) {
-                        if (fragment.getCurrentSocialNetwork() != SocialNetworks.VK) {
-                            setNavigationDrawerHeader(SocialNetworks.VK);
-                            showMessagesList(SocialNetworks.VK);
-                        }
-                    } else {
-                        setNavigationDrawerHeader(SocialNetworks.VK);
-                        showMessagesList(SocialNetworks.VK);
-                    }
+                } else if (!checkCurrentVisibleFragment(SocialNetworks.VK)) {
+                    setMainActivityAppearance(SocialNetworks.VK);
                 }
                 break;
             case R.id.nav_telegram:
@@ -141,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    void showMessagesList(SocialNetworks socialNetwork) {
+    void showUserDialogs(SocialNetworks socialNetwork) {
         DialogsListFragment dialogsListFragment = new DialogsListFragment();
 
         Bundle bundle = new Bundle();
@@ -158,7 +137,7 @@ public class MainActivity extends AppCompatActivity
 
         dialogsListFragment.setArguments(bundle);
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_list");
+        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_dialogs");
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.commit();
@@ -181,11 +160,33 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void facebookRequestForHeader() {
+        GraphRequest graphRequest = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+                        try {
+                            String name = object.getString("name");
+                            String pictureURL = object.getJSONObject("picture").getJSONObject("data").getString("url");
+                            fillNavigationDrawerHeader(name, "", pictureURL);
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "name, picture.type(normal)");
+        graphRequest.setParameters(parameters);
+
+        graphRequest.executeAsync();
     }
 
     private void vkRequestForHeader() {
-        VKRequest vkRequest = VKApi.users().get(VKParameters.from(VKApiConst.USER_IDS, VKAccessToken.currentToken().userId,
+        VKRequest vkRequest = VKApi.users().get(VKParameters.from(
+                VKApiConst.USER_IDS, VKAccessToken.currentToken().userId,
                 VKApiConst.FIELDS, "photo_100, status"));
+
         vkRequest.executeWithListener(new VKRequest.VKRequestListener() {
             @Override
             public void onComplete(VKResponse response) {
@@ -210,5 +211,29 @@ public class MainActivity extends AppCompatActivity
                 .placeholder(R.drawable.placeholder_person)
                 .error(R.drawable.placeholder_person)
                 .into((ImageView) findViewById(R.id.nav_user_photo));
+    }
+
+    boolean FacebookIsLoggedIn() {
+        AccessToken accessToken = AccessToken.getCurrentAccessToken();
+        return accessToken != null && !accessToken.isExpired();
+    }
+
+    boolean VKIsLoggedIn() {
+        return VKSdk.isLoggedIn();
+    }
+
+    boolean checkCurrentVisibleFragment(SocialNetworks socialNetwork) {
+        DialogsListFragment fragment = (DialogsListFragment) getSupportFragmentManager().findFragmentByTag("visible_dialogs");
+
+        if (fragment != null && (fragment.getCurrentSocialNetwork() == socialNetwork) && fragment.isVisible()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    void setMainActivityAppearance(SocialNetworks socialNetwork) {
+        setNavigationDrawerHeader(socialNetwork);
+        showUserDialogs(socialNetwork);
     }
 }

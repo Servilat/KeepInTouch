@@ -49,7 +49,7 @@ public class DialogsListFragmentAdapter extends ArrayAdapter<DialogsItem> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = null;
+        ViewHolder holder;
 
         DialogsItem messageItem = dialogsItems.get(position);
 
@@ -71,9 +71,6 @@ public class DialogsListFragmentAdapter extends ArrayAdapter<DialogsItem> {
         holder.messageTimeTextView.setText(messageItem.getMessageTime());
         holder.messageTextView.setText(messageItem.getUserMessage());
         holder.dialogNameTextView.setText(messageItem.getDialogName());
-        if (!messageItem.getReadState()) {
-            holder.messageTextView.setBackgroundColor(getContext().getResources().getColor(R.color.colorGrey));
-        }
         Picasso.with(getContext())
                 .load(messageItem.getImageURL())
                 .placeholder(R.drawable.placeholder_person)

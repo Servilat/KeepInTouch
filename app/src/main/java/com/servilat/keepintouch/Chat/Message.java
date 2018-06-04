@@ -1,9 +1,9 @@
 package com.servilat.keepintouch.Chat;
 
 public class Message {
-    String message;
-    String time;
-    User sender;
+    private String message;
+    private String time;
+    private User sender;
 
     public Message(String message, String time, User sender) {
         this.message = message;
@@ -21,5 +21,13 @@ public class Message {
 
     public User getSender() {
         return sender;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 }

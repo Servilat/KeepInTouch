@@ -13,7 +13,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class MessageListAdapter extends RecyclerView.Adapter {
+public class UserChatAdapter extends RecyclerView.Adapter {
     private static final int VIEW_TYPE_MESSAGE_SENT = 1;
     private static final int VIEW_TYPE_MESSAGE_RECEIVED = 2;
 
@@ -21,7 +21,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
     private Context mContext;
     private List<Message> messages;
 
-    public MessageListAdapter(Context context, List<Message> messageList, User currentUser) {
+    public UserChatAdapter(Context context, List<Message> messageList, User currentUser) {
         mContext = context;
         messages = messageList;
         this.currentUser = currentUser;
@@ -34,7 +34,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        Message message = (Message) messages.get(position);
+        Message message = messages.get(position);
 
         if (message.getSender().getUserID().equals(currentUser.getUserID())) {
             return VIEW_TYPE_MESSAGE_SENT;
@@ -62,7 +62,7 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        Message message = (Message) messages.get(position);
+        Message message = messages.get(position);
 
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_MESSAGE_SENT:
@@ -78,8 +78,8 @@ public class MessageListAdapter extends RecyclerView.Adapter {
 
         SentMessageHolder(View itemView) {
             super(itemView);
-            messageText = (TextView) itemView.findViewById(R.id.text_message_body);
-            timeText = (TextView) itemView.findViewById(R.id.text_message_time);
+            messageText = itemView.findViewById(R.id.text_message_body);
+            timeText = itemView.findViewById(R.id.text_message_time);
         }
 
         void bind(Message message) {
@@ -95,10 +95,10 @@ public class MessageListAdapter extends RecyclerView.Adapter {
         ReceivedMessageHolder(View itemView) {
             super(itemView);
 
-            messageText = (TextView) itemView.findViewById(R.id.text_message_body);
-            timeText = (TextView) itemView.findViewById(R.id.text_message_time);
-            nameText = (TextView) itemView.findViewById(R.id.text_message_name);
-            profileImage = (ImageView) itemView.findViewById(R.id.image_message_profile);
+            messageText = itemView.findViewById(R.id.text_message_body);
+            timeText = itemView.findViewById(R.id.text_message_time);
+            nameText = itemView.findViewById(R.id.text_message_name);
+            profileImage = itemView.findViewById(R.id.image_message_profile);
         }
 
         void bind(Message message) {
@@ -109,7 +109,6 @@ public class MessageListAdapter extends RecyclerView.Adapter {
                     .load(message.getSender().getImageURL())
                     .error(R.drawable.placeholder_person)
                     .placeholder(R.drawable.placeholder_person)
-                    .resize(32, 32)
                     .into(profileImage);
         }
     }

@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.servilat.keepintouch.MainActivity;
 import com.servilat.keepintouch.Dialog.DialogsListFragment;
+import com.servilat.keepintouch.MainActivity;
 import com.servilat.keepintouch.R;
 import com.servilat.keepintouch.SocialNetworks;
 import com.servilat.keepintouch.Util;
@@ -77,6 +77,7 @@ public class LoginVKFragment extends Fragment implements View.OnClickListener {
                     }
                 });
                 ((MainActivity) getActivity()).setNavigationDrawerHeader(SocialNetworks.VK);
+                getActivity().getSupportFragmentManager().popBackStack();
                 showMessagesList();
             }
 
@@ -97,7 +98,7 @@ public class LoginVKFragment extends Fragment implements View.OnClickListener {
         dialogsListFragment.setArguments(bundle);
 
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_list");
+        fragmentTransaction.replace(R.id.frame_layout, dialogsListFragment, "visible_dialogs");
         fragmentTransaction.addToBackStack(null);
 
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
