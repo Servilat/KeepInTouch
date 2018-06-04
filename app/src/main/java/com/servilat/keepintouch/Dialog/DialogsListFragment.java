@@ -15,17 +15,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.servilat.keepintouch.Chat.Message;
-import com.servilat.keepintouch.Chat.UserChatFragment;
 import com.servilat.keepintouch.Chat.User;
+import com.servilat.keepintouch.Chat.UserChatFragment;
 import com.servilat.keepintouch.Login.LoginVKFragment;
 import com.servilat.keepintouch.R;
 import com.servilat.keepintouch.SocialNetworks;
@@ -73,6 +71,8 @@ public class DialogsListFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = null;
+
         setHasOptionsMenu(true);
         getActivity().findViewById(R.id.toolbar).setBackgroundColor(context.getResources().getColor(R.color.colorVK));
 
@@ -87,25 +87,17 @@ public class DialogsListFragment extends ListFragment {
         if (arguments != null) {
             switch ((SocialNetworks) arguments.getSerializable(SOCIAL_NETWORK)) {
                 case VK:
+                    view = inflater.inflate(R.layout.messages_layout, container, false);
                     getVKDialogs();
+                    setUpLongPullServer();
                     currentSocialNetwork = SocialNetworks.VK;
                     break;
                 case TELEGRAM:
-                    getFacebookDialogs();
                     currentSocialNetwork = SocialNetworks.TELEGRAM;
-                    break;
-                case FACEBOOK:
-                    currentSocialNetwork = SocialNetworks.FACEBOOK;
                     break;
             }
         }
-
-        setUpLongPullServer();
-        return inflater.inflate(R.layout.messages_layout, container, false);
-    }
-
-    private void getFacebookDialogs() {
-
+        return view;
     }
 
     @Override
@@ -163,24 +155,17 @@ public class DialogsListFragment extends ListFragment {
                                     getVKDialogs();
                                 }
                                 break;
-                            case FACEBOOK:
-                                break;
                         }
                         preLast = lastItem;
                     }
                 }
             }
         });
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch (currentSocialNetwork) {
-                    case VK:
-                        showDialog(position);
-                        break;
-                    case FACEBOOK:
-                        break;
-                }
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            switch (currentSocialNetwork) {
+                case VK:
+                    showDialog(position);
+                    break;
             }
         });
     }
@@ -281,7 +266,6 @@ public class DialogsListFragment extends ListFragment {
                         e.printStackTrace();
                     }
                 }, error -> {
-            Toast.makeText(context, "Response", Toast.LENGTH_SHORT);
         });
         stringRequest.setTag(this);
         requestQueue.add(stringRequest);
@@ -305,7 +289,7 @@ public class DialogsListFragment extends ListFragment {
                     JSONObject vkResponse = response.json.getJSONObject("response");
                     JSONArray messages = vkResponse.getJSONArray("messages");
                     if (messages.length() != 0) {
-                        List<Message> messageList = getReceivedMessages(messages);
+                        List<Message> messageList = getReceivedMessagesList(messages);
                         sendNotification(messageList);
                         if (fragment != null && fragment.isVisible()) {
                             setDialogsWithNewMessages(messageList);
@@ -329,6 +313,8 @@ public class DialogsListFragment extends ListFragment {
                     dialogsItems.remove(dialogsItem);
                     dialogsItem.setMessageTime(message.getTime());
                     dialogsItem.setUserMessage(message.getMessage());
+                    dialogsItem.setImageURL(message.getSender().getImageURL());
+                    dialogsItem.setDialogName(message.getSender().getDialogName());
                     dialogsItems.add(0, dialogsItem);
                     break label;
                 }
@@ -365,7 +351,7 @@ public class DialogsListFragment extends ListFragment {
         ts = response.getString("ts");
     }
 
-    List<Message> getReceivedMessages(JSONArray messagesJSONArray) throws JSONException {
+    List<Message> getReceivedMessagesList(JSONArray messagesJSONArray) throws JSONException {
         List<Message> messageList = new ArrayList<>();
 
         for (int i = 0; i < messagesJSONArray.length(); i++) {

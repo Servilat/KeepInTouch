@@ -53,6 +53,14 @@ public class DialogsItem {
         this.messageTime = messageTime;
     }
 
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    public void setDialogName(String dialogName) {
+        this.dialogName = dialogName;
+    }
+
     void parseMessage(JSONObject message) {
         try {
             this.userMessage = message.getString("body");

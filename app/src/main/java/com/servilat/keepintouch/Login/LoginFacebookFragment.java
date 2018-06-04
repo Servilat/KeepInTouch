@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +18,15 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
+import com.servilat.keepintouch.Dialog.DialogsListFragment;
+import com.servilat.keepintouch.Dialog.SendFilesDialog;
 import com.servilat.keepintouch.R;
+import com.servilat.keepintouch.SocialNetworks;
 import com.servilat.keepintouch.Util;
 
 import java.util.Arrays;
 
+import static com.servilat.keepintouch.MainActivity.SOCIAL_NETWORK;
 import static com.servilat.keepintouch.Util.showAlertMessage;
 
 public class LoginFacebookFragment extends Fragment implements View.OnClickListener {
@@ -64,19 +69,17 @@ public class LoginFacebookFragment extends Fragment implements View.OnClickListe
         loginManager.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Toast.makeText(getContext(), "GOOD", Toast.LENGTH_LONG);
-                AccessToken accessToken = AccessToken.getCurrentAccessToken();
+                getActivity().getSupportFragmentManager().popBackStack();
+                showSendWindow();
             }
 
             @Override
             public void onCancel() {
-                Toast.makeText(getContext(), "CANCEL", Toast.LENGTH_LONG);
 
             }
 
             @Override
             public void onError(FacebookException error) {
-                Toast.makeText(getContext(), "ERROR", Toast.LENGTH_LONG);
 
             }
         });
@@ -104,5 +107,15 @@ public class LoginFacebookFragment extends Fragment implements View.OnClickListe
 
     void loginAction() {
         loginManager.logInWithReadPermissions(fragment, Arrays.asList(FACEBOOK_PERMISSIONS));
+    }
+
+    private void showSendWindow() {
+        SendFilesDialog sendFilesDialog = new SendFilesDialog();
+
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout, sendFilesDialog, "visible_messenger");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
     }
 }

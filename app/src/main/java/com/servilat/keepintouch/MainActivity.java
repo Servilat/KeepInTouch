@@ -18,6 +18,7 @@ import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.servilat.keepintouch.Dialog.DialogsListFragment;
+import com.servilat.keepintouch.Dialog.SendFilesDialog;
 import com.servilat.keepintouch.Login.LoginFacebookFragment;
 import com.servilat.keepintouch.Login.LoginTelegramFragment;
 import com.servilat.keepintouch.Login.LoginVKFragment;
@@ -98,7 +99,7 @@ public class MainActivity extends AppCompatActivity
                 colorID = R.color.colorFacebook;
                 if (!FacebookIsLoggedIn()) {
                     visibleFragment = new LoginFacebookFragment();
-                } else if (!checkCurrentVisibleFragment(SocialNetworks.FACEBOOK)) {
+                } else if (!checkMessengerOnVisibility()) {
                     setMainActivityAppearance(SocialNetworks.FACEBOOK);
                 }
                 break;
@@ -120,6 +121,14 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private boolean checkMessengerOnVisibility() {
+        SendFilesDialog fragment = (SendFilesDialog) getSupportFragmentManager().findFragmentByTag("visible_messenger");
+        if (fragment != null && fragment.isVisible()) {
+            return true;
+        }
+        return false;
+    }
+
     void showUserDialogs(SocialNetworks socialNetwork) {
         DialogsListFragment dialogsListFragment = new DialogsListFragment();
 
@@ -129,8 +138,8 @@ public class MainActivity extends AppCompatActivity
                 bundle.putSerializable(SOCIAL_NETWORK, SocialNetworks.TELEGRAM);
                 break;
             case FACEBOOK:
-                bundle.putSerializable(SOCIAL_NETWORK, SocialNetworks.FACEBOOK);
-                break;
+                setMessengerAppearance();
+                return;
             case VK:
                 bundle.putSerializable(SOCIAL_NETWORK, SocialNetworks.VK);
         }
@@ -228,12 +237,20 @@ public class MainActivity extends AppCompatActivity
         if (fragment != null && (fragment.getCurrentSocialNetwork() == socialNetwork) && fragment.isVisible()) {
             return true;
         }
-
         return false;
     }
 
     void setMainActivityAppearance(SocialNetworks socialNetwork) {
         setNavigationDrawerHeader(socialNetwork);
         showUserDialogs(socialNetwork);
+    }
+
+    void setMessengerAppearance() {
+        SendFilesDialog sendFilesDialog = new SendFilesDialog();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout, sendFilesDialog, "visible_messenger");
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
     }
 }

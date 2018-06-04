@@ -30,4 +30,8 @@
     <string name="facebook_app_id">398020550715063</string>
     <string name="fb_login_protocol_scheme">fb398020550715063</string>
     <string name="coming_soon">Coming soon</string>
+    <string name="photo">Photo</string>
+    <string name="music_video">Music/Video</string>
+    <string name="webp">WebP</string>
+    <string name="gif">GIF</string>
 </resources>
